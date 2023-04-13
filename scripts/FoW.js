@@ -7,17 +7,21 @@ export class FoW{
         this.rows=game.rows;
         this.columns=game.columns;
         this.grid=game.maze.grid;
+        this.currentPosX;
+        this.currentPosY;
     }
 
     setup(){
         fog.width=this.size;
         fog.height=this.size;
         fogContext.fillStyle="#000d";
+        this.currentPosX=0;
+        this.currentPosY=0;
         this.castLight(0,0,"down");
     }
     update(isMoving,posX,posY,dir){
-        if (isMoving) {
-        }
+        // if (Math.round(posX)!=this.currentPosX) {
+        // }
         this.castLight(posX,posY,dir,isMoving)
     }
     draw(isMoving,context){

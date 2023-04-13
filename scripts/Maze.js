@@ -43,6 +43,10 @@ export class Maze{
     draw(){
         current.visited =true;
         let next= current.checkNeighbours();
+        if(Math.random()<0.30){
+            let newOpening= current.checkWalls()
+            current.removeWalls(current, newOpening)
+        }
         if (next){
             this.stack.push(current);
             current.removeWalls(current, next);
@@ -128,6 +132,37 @@ class Cell{
         if (neighbours.length){
             let random= Math.floor(Math.random()*neighbours.length);
             return neighbours[random];
+        }else{
+            return undefined;
+        }
+
+    }
+    checkWalls(){
+        let grid=this.parentGrid;
+        let col=this.colNum;
+        let row=this.rowNum;
+        let availableWalls=[];
+
+        let top=row!==0? grid[row-1][col]:undefined;
+        let right=col!==grid[0].length-1? grid[row][col+1]:undefined;
+        let bottom=row!==grid.length-1? grid[row+1][col]:undefined;
+        let left=col!==0? grid[row][col-1]:undefined;
+
+        if(top && !top.walls.bottomWall){
+            availableWalls.push(top);
+        }
+        if(right && !right.walls.leftmWall){
+            availableWalls.push(right);
+        }
+        if(bottom && !bottom.walls.topWall){
+            availableWalls.push(bottom);
+        }
+        if(left && !left.walls.rightWall){
+            availableWalls.push(left);
+        }
+        if (availableWalls.length){
+            let random= Math.floor(Math.random()*availableWalls.length);
+            return availableWalls[random];
         }else{
             return undefined;
         }
@@ -225,7 +260,7 @@ class Cell{
         if (this.walls.rightWall){
             this.drawRightWall(x,y,size,columns,rows);
         }else{
-            if(!this.walls.bottomWall){
+            if(!this.walls.bottomWall && row!=grid.length-1 && col!=grid[0].length-1 && grid[row + 1][col + 1].walls.topWall){
                 let bottomRightCornerImg=new Image();
                 bottomRightCornerImg.src="./images/maze/bottomRightCorner.png"
                 bottomRightCornerImg.onload= ()=>{
@@ -240,7 +275,7 @@ class Cell{
         if (this.walls.leftWall){
             this.drawLeftWall(x,y,size,columns,rows);
         }else{
-            if(!this.walls.bottomWall){
+            if(!this.walls.bottomWall && row!=grid.length-1 && col!=0 && grid[row + 1][col - 1].walls.topWall){
                 let bottomLeftCornerImg=new Image();
                 bottomLeftCornerImg.src="./images/maze/bottomLeftCorner.png"
                 bottomLeftCornerImg.onload= ()=>{
