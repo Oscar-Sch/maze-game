@@ -9,6 +9,9 @@ export class FoW{
         this.grid=game.maze.grid;
         this.currentPosX;
         this.currentPosY;
+        this.lightRange=[];
+        this.current;
+        this.stack=[];
     }
 
     setup(){
@@ -17,75 +20,94 @@ export class FoW{
         fogContext.fillStyle="#000d";
         this.currentPosX=0;
         this.currentPosY=0;
-        this.castLight(0,0,"down");
+        this.current=this.grid[this.currentPosY][this.currentPosX];
+        this.clearLight();
+        fogContext.fillStyle="#a003";
+        this.calculateLightRange(this.currentPosX,this.currentPosY);
+        console.log(this.lightRange)
+        // this.castLight(0,0,"down");
     }
     update(isMoving,posX,posY,dir){
-        // if (Math.round(posX)!=this.currentPosX) {
-        // }
-        this.castLight(posX,posY,dir,isMoving)
+        if (Math.round(posX)!=this.currentPosX || 
+            Math.round(posY)!=this.currentPosY) {
+            this.currentPosX=Math.round(posX);
+            this.currentPosY=Math.round(posY);
+            this.current=this.grid[this.currentPosY][this.currentPosX];
+            this.clearLight();
+            this.calculateLightRange(this.currentPosX,this.currentPosY);
+        }
+        this.castLight(posX,posY)
+
     }
     draw(isMoving,context){
         // if (isMoving) {
         //     context.fill()
         // }
     }
-    castLight(posX,posY,dir,isMoving){
-        //reset the fog    
-        // for(let r=0;r<this.rows;r++){
-        //     for (let c=0; c<this.columns;c++){
-        //         fogContext.rect(c*this.size/this.columns,r*this.size/this.rows,this.size/this.columns,this.size/this.rows);
-        //     }
-        // }
-        fogContext.fillStyle="#000d";
+    checkIntensity(length){
+        switch (length){
+            case 0 :
+                return "#0007"
+            case 2:
+                return "#0009"
+            case 3:
+                return "#000b"
+            case 4:
+                return "#000a"
+            default:
+                return "#0007"
+        }
+    }
+    calculateLightRange(posX,posY){
+        if (!this.current.visited){
+            this.lightRange.push({
+                cell: this.current,
+                lightIntensity: this.checkIntensity(this.stack.length)
+            });
+        }
+        this.current.visited =true;
+        let next= this.current.checkLightSpread();
+        if (next && this.stack.length<=2 ){
+                this.stack.push(this.current);
+                console.log("pushed", this.current)
+            this.current =next;
+        }else if(this.stack.length){
+            this.current=this.stack.pop();
+        }else{
+            return;
+        }
+        
+        this.calculateLightRange()
+    }
+    clearLight(){
+        for (let i=0; i<this.grid.length;i++){
+            for(let j=0; j<this.grid[0].length;j++){
+                this.grid[i][j].visited=false;
+            }
+        }
+        this.lightRange=[];
+    }
+    castLight(posX,posY){
+        fogContext.fillStyle="#000e";
         fogContext.beginPath();
         fogContext.clearRect(0,0,this.size,this.size);
         fogContext.rect(0,0,this.size,this.size)
         fogContext.fill()
-        // fogContext.globalCompositeOperation="destination-out"
-        //update the light
-        if(!isMoving){
-            
-            fogContext.fillStyle="#0007";
-            if(posX>0 && !this.grid[Math.round(posY)][Math.round(posX)].walls.leftWall){
-                // if(posX-1>0 && !this.grid[Math.round(posY)][Math.round(posX-1)].walls.leftWall && dir=="left"){
-                //     fogContext.clearRect((posX-2)*this.size/this.columns,posY*this.size/this.rows,this.size/this.columns,this.size/this.rows);
-                //     fogContext.fillRect((posX-2)*this.size/this.columns,posY*this.size/this.rows,this.size/this.columns,this.size/this.rows);
-                // }
-                fogContext.clearRect((posX-1)*this.size/this.columns,posY*this.size/this.rows,this.size/this.columns,this.size/this.rows);
-                fogContext.rect((posX-1)*this.size/this.columns,posY*this.size/this.rows,this.size/this.columns,this.size/this.rows);
-            }
-            if(posX<this.columns-1 && !this.grid[Math.round(posY)][Math.round(posX)].walls.rightWall){
-                // if(posX+1<this.columns-1 && !this.grid[Math.round(posY)][Math.round(posX+1)].walls.rightWall && dir=="right"){
-                //     fogContext.clearRect((posX+2)*this.size/this.columns,posY*this.size/this.rows,this.size/this.columns,this.size/this.rows);
-                //     fogContext.fillRect((posX+2)*this.size/this.columns,posY*this.size/this.rows,this.size/this.columns,this.size/this.rows);
-                // }
-                fogContext.clearRect((posX+1)*this.size/this.columns,posY*this.size/this.rows,this.size/this.columns,this.size/this.rows);
-                fogContext.rect((posX+1)*this.size/this.columns,posY*this.size/this.rows,this.size/this.columns,this.size/this.rows);
-            }
-            if(posY>0 && !this.grid[Math.round(posY)][Math.round(posX)].walls.topWall){
-                // if(posY-1>0 && !this.grid[Math.round(posY-1)][Math.round(posX)].walls.topWall && dir=="up"){
-                //     fogContext.clearRect(posX*this.size/this.columns,(posY-2)*this.size/this.rows,this.size/this.columns,this.size/this.rows);
-                //     fogContext.fillRect(posX*this.size/this.columns,(posY-2)*this.size/this.rows,this.size/this.columns,this.size/this.rows);
-                // }
-                fogContext.clearRect(posX*this.size/this.columns,(posY-1)*this.size/this.rows,this.size/this.columns,this.size/this.rows);
-                fogContext.rect(posX*this.size/this.columns,(posY-1)*this.size/this.rows,this.size/this.columns,this.size/this.rows);
-            }
-            if(posY<this.rows-1 && !this.grid[Math.round(posY)][Math.round(posX)].walls.bottomWall){
-                // if(posY+1<this.rows-1 && !this.grid[Math.round(posY+1)][Math.round(posX)].walls.bottomWall && dir=="down"){
-                //     fogContext.clearRect(posX*this.size/this.columns,(posY+2)*this.size/this.rows,this.size/this.columns,this.size/this.rows);
-                //     fogContext.fillRect(posX*this.size/this.columns,(posY+2)*this.size/this.rows,this.size/this.columns,this.size/this.rows);
-                // }
-                fogContext.clearRect(posX*this.size/this.columns,(posY+1)*this.size/this.rows,this.size/this.columns,this.size/this.rows);
-                fogContext.rect(posX*this.size/this.columns,(posY+1)*this.size/this.rows,this.size/this.columns,this.size/this.rows);
-            }
-        }
-        fogContext.fill();
-        // fogContext.fillStyle="#0000"
+        fogContext.closePath()
+
+        this.lightRange.forEach(cell=>{
+                fogContext.beginPath()
+                fogContext.fillStyle=cell.lightIntensity;
+                fogContext.clearRect(cell.cell.colNum*this.size/this.columns,cell.cell.rowNum*this.size/this.rows,this.size/this.columns,this.size/this.rows);
+                fogContext.fillRect(cell.cell.colNum*this.size/this.columns,cell.cell.rowNum*this.size/this.rows,this.size/this.columns,this.size/this.rows)
+                fogContext.closePath()
+        })
+        fogContext.beginPath()
+        fogContext.fillStyle="#0000"
         fogContext.clearRect(posX*this.size/this.columns,posY*this.size/this.rows,this.size/this.columns,this.size/this.rows);
-        // fogContext.fillRect(posX*this.size/this.columns,posY*this.size/this.rows,this.size/this.columns,this.size/this.rows);
-        // fogContext.fill();
+        fogContext.fillRect(posX*this.size/this.columns,posY*this.size/this.rows,this.size/this.columns,this.size/this.rows);
+        fogContext.fill();
         fogContext.closePath();
-        console.log("hola")
     }
 
 }

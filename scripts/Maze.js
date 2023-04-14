@@ -137,6 +137,36 @@ class Cell{
         }
 
     }
+    checkLightSpread(){
+        let grid=this.parentGrid;
+        let col=this.colNum;
+        let row=this.rowNum;
+        let spreadableCells=[];
+
+        let top=row!==0? grid[row-1][col]:undefined;
+        let right=col!==grid[0].length-1? grid[row][col+1]:undefined;
+        let bottom=row!==grid.length-1? grid[row+1][col]:undefined;
+        let left=col!==0? grid[row][col-1]:undefined;
+
+        if(top && !top.walls.bottomWall && !top.visited){
+            spreadableCells.push(top);
+        }
+        if(right && !right.walls.leftWall && !right.visited){
+            spreadableCells.push(right);
+        }
+        if(bottom && !bottom.walls.topWall && !bottom.visited){
+            spreadableCells.push(bottom);
+        }
+        if(left && !left.walls.rightWall && !left.visited){
+            spreadableCells.push(left);
+        }
+        if (spreadableCells.length){
+            let random= Math.floor(Math.random()*spreadableCells.length);
+            return spreadableCells[random];
+        }else{
+            return undefined;
+        }
+    }
     checkWalls(){
         let grid=this.parentGrid;
         let col=this.colNum;
