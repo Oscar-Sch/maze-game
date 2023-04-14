@@ -13,8 +13,8 @@ window.addEventListener("load",()=>{
     const fogContext= fog.getContext("2d");
     // const container=document.querySelector(".canvas-container");
     // const canvasCollection=document.querySelectorAll(".camera");
-    let containerWidth=500;
-    let containerHeight=500;
+    let containerWidth=800;
+    let containerHeight=800;
 
     class Game{
         constructor(size,rows,columns){
