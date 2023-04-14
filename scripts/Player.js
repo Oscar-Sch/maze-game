@@ -1,5 +1,6 @@
 let player= document.querySelector(".player");
 let playerContext= player.getContext("2d");
+let stepSound= document.querySelectorAll(".step-sound");
 
 export class Player{
     constructor(size,rows,columns,grid){
@@ -21,6 +22,7 @@ export class Player{
         this.framePosition=0;
         this.animationSpeed=0.2;
         this.idleCounter=0;
+        this.stepSoundIsPlaying=false;
         // this.playerSprite= new Image();
         // this.playerSprite.src="./images/character/characterSpriteSheet.png"
         this.playerSprite=document.querySelector(".character-spriteSheet");
@@ -84,11 +86,21 @@ export class Player{
                 this.playerPosY=Math.round(this.playerPosY);
                 this.movementSnaper=0;
                 this.isMoving=false;
+                this.stepSoundIsPlaying=false;
                 this.framePosition=0;
             }
             // console.log(this.playerPosX,this.playerPosY)
         }
+        this.audioHandler();
         this.animationHandler();
+    }
+    audioHandler(){
+        if(this.framePosition===2 && this.isMoving && !this.stepSoundIsPlaying){
+            let random=Math.floor(Math.random()*stepSound.length);
+            console.log(random)
+            stepSound[random].play();
+            this.stepSoundIsPlaying=true;
+        }
     }
     animationHandler(){
         this.framePosition=(Math.floor(this.movementSnaper/this.animationSpeed))%4;
