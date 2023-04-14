@@ -97,6 +97,9 @@ export class Player{
     audioHandler(){
         if(this.framePosition===2 && this.isMoving && !this.stepSoundIsPlaying){
             let random=Math.floor(Math.random()*stepSound.length);
+            // stepSound[random].volume=0.1;
+            // console.log((Math.floor(Math.random()*5)/10))
+            stepSound[random].volume= 0.4 + (Math.floor(Math.random()*4)/10);
             console.log(random)
             stepSound[random].play();
             this.stepSoundIsPlaying=true;

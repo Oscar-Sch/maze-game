@@ -44,32 +44,50 @@ export class FoW{
         //     context.fill()
         // }
     }
-    checkIntensity(length){
-        switch (length){
-            case 0 :
-                return "#0007"
+    checkIntensity(cell){
+        let hDistance=Math.abs(cell.colNum-this.currentPosX);
+        let vDistance=Math.abs(cell.rowNum-this.currentPosY);
+        switch (hDistance+vDistance){
+            case 0 || 1 :
+                return "#0008"
             case 2:
-                return "#0009"
+                return "#000a"
             case 3:
-                return "#000b"
+                return "#000c"
             case 4:
                 return "#000a"
             default:
                 return "#0007"
         }
+
     }
+    // checkIntensity(length){
+    //     switch (length){
+    //         case 0 :
+    //             return "#0007"
+    //         case 2:
+    //             return "#0009"
+    //         case 3:
+    //             return "#000b"
+    //         case 4:
+    //             return "#000a"
+    //         default:
+    //             return "#0007"
+    //     }
+    // }
     calculateLightRange(posX,posY){
         if (!this.current.visited){
             this.lightRange.push({
                 cell: this.current,
-                lightIntensity: this.checkIntensity(this.stack.length)
+                // lightIntensity: this.checkIntensity(this.stack.length)
             });
         }
         this.current.visited =true;
         let next= this.current.checkLightSpread();
-        if (next && this.stack.length<=2 ){
+        //this is the range of the light, setted in that ammount due to some bugs
+        //with higher numbers
+        if (next && this.stack.length<=1 ){
                 this.stack.push(this.current);
-                console.log("pushed", this.current)
             this.current =next;
         }else if(this.stack.length){
             this.current=this.stack.pop();
@@ -97,13 +115,14 @@ export class FoW{
 
         this.lightRange.forEach(cell=>{
                 fogContext.beginPath()
-                fogContext.fillStyle=cell.lightIntensity;
+                fogContext.fillStyle=this.checkIntensity(cell.cell);
+                // fogContext.fillStyle=cell.lightIntensity;
                 fogContext.clearRect(cell.cell.colNum*this.size/this.columns,cell.cell.rowNum*this.size/this.rows,this.size/this.columns,this.size/this.rows);
                 fogContext.fillRect(cell.cell.colNum*this.size/this.columns,cell.cell.rowNum*this.size/this.rows,this.size/this.columns,this.size/this.rows)
                 fogContext.closePath()
         })
         fogContext.beginPath()
-        fogContext.fillStyle="#0000"
+        fogContext.fillStyle="#0003"
         fogContext.clearRect(posX*this.size/this.columns,posY*this.size/this.rows,this.size/this.columns,this.size/this.rows);
         fogContext.fillRect(posX*this.size/this.columns,posY*this.size/this.rows,this.size/this.columns,this.size/this.rows);
         fogContext.fill();
